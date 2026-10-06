@@ -162,18 +162,14 @@
 
     <!-- 歷史紀錄列表 -->
     <div class="record-list">
-        <h3>今日紀錄</h3>
+        <h3>歷史紀錄 (近一星期趨勢)</h3>
         <div id="recordsContainer"></div>
     </div>
 </div>
 
 <script>
-    // JS: 這裡是 App 的大腦與計算邏輯
-
-    // 1. 從瀏覽器暫存 (localStorage) 讀取先前的紀錄，如果沒有就預設為空陣列
     let foodRecords = JSON.parse(localStorage.getItem('myDietRecords')) || [];
 
-    // 2. 當下拉選單改變時，自動填入預設數值
     function fillPreset() {
         const select = document.getElementById('presetFood');
         const option = select.options[select.selectedIndex];
@@ -185,7 +181,6 @@
             document.getElementById('foodCarb').value = option.getAttribute('data-carb');
             document.getElementById('foodFat').value = option.getAttribute('data-fat');
         } else {
-            // 清空輸入框
             document.getElementById('foodName').value = '';
             document.getElementById('foodCal').value = '';
             document.getElementById('foodPro').value = '';
@@ -194,7 +189,6 @@
         }
     }
 
-    // 3. 加入新食物的函數
     function addFood() {
         const name = document.getElementById('foodName').value;
         const cal = Number(document.getElementById('foodCal').value);
@@ -207,65 +201,128 @@
             return;
         }
 
-        // 將新資料打包並加入陣列
         const newRecord = { id: Date.now(), name, cal, pro, carb, fat };
         foodRecords.push(newRecord);
 
-        // 儲存到瀏覽器並更新畫面
         saveData();
         updateUI();
         
-        // 清空輸入框並將選單重置
         document.getElementById('presetFood').value = "";
         fillPreset(); 
     }
 
-    // 4. 刪除食物的函數
     function deleteFood(id) {
         foodRecords = foodRecords.filter(record => record.id !== id);
         saveData();
         updateUI();
     }
 
-    // 5. 將資料儲存到瀏覽器中 (關掉網頁資料才不會不見)
     function saveData() {
         localStorage.setItem('myDietRecords', JSON.stringify(foodRecords));
     }
 
-    // 6. 更新畫面的計算與列表顯示
     function updateUI() {
-        let tCal = 0, tPro = 0, tCarb = 0, tFat = 0;
         const container = document.getElementById('recordsContainer');
-        container.innerHTML = ''; // 先清空列表
+        container.innerHTML = '';
 
-        // 迴圈計算總數，並建立列表畫面
+        // 計算今日總和 (用於頂部卡片)
+        let todayStr = new Date().toLocaleDateString();
+        let tCal = 0, tPro = 0, tCarb = 0, tFat = 0;
+
         foodRecords.forEach(record => {
-            tCal += record.cal;
-            tPro += record.pro;
-            tCarb += record.carb;
-            tFat += record.fat;
-
-            const div = document.createElement('div');
-            div.className = 'record-item';
-            div.innerHTML = `
-                <div class="record-details">
-                    <p><strong>${record.name}</strong></p>
-                    <small>${record.cal} kcal | P: ${record.pro}g | C: ${record.carb}g | F: ${record.fat}g</small>
-                </div>
-                <button class="delete-btn" onclick="deleteFood(${record.id})">刪除</button>
-            `;
-            container.appendChild(div);
+            let recordDate = new Date(record.id).toLocaleDateString();
+            if(recordDate === todayStr) {
+                tCal += record.cal;
+                tPro += record.pro;
+                tCarb += record.carb;
+                tFat += record.fat;
+            }
         });
 
-        // 顯示總數
         document.getElementById('totalCal').innerText = tCal;
         document.getElementById('totalPro').innerText = tPro;
         document.getElementById('totalCarb').innerText = tCarb;
         document.getElementById('totalFat').innerText = tFat;
+
+        if(foodRecords.length === 0) {
+            container.innerHTML = '<p style="color: #7f8c8d; text-align: center;">暫無紀錄</p>';
+            return;
+        }
+
+        // 將紀錄按日期分組 (由新到舊排序)
+        let grouped = {};
+        foodRecords.slice().reverse().forEach(record => {
+            let dateKey = new Date(record.id).toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric', weekday: 'short' });
+            if (!grouped[dateKey]) {
+                grouped[dateKey] = [];
+            }
+            grouped[dateKey].push(record);
+        });
+
+        // 渲染每一日的清單
+        for (let date in grouped) {
+            let dayRecords = grouped[date];
+            let dayCal = dayRecords.reduce((sum, r) => sum + r.cal, 0);
+
+            let dayBox = document.createElement('div');
+            dayBox.style.marginBottom = '15px';
+            dayBox.innerHTML = `
+                <div style="background: #eef2f3; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 14px; display: flex; justify-content: space-between; color: #34495e;">
+                    <span>📅 ${date}</span>
+                    <span>小計: ${dayCal} kcal</span>
+                </div>
+            `;
+
+            let itemsList = document.createElement('div');
+            itemsList.style.marginTop = '5px';
+
+            dayRecords.forEach(record => {
+                const div = document.createElement('div');
+                div.className = 'record-item';
+                div.innerHTML = `
+                    <div class="record-details">
+                        <p><strong>${record.name}</strong></p>
+                        <small>${record.cal} kcal | P: ${record.pro}g | C: ${record.carb}g | F: ${record.fat}g</small>
+                    </div>
+                    <button class="delete-btn" onclick="deleteFood(${record.id})">刪除</button>
+                `;
+                itemsList.appendChild(div);
+            });
+
+            dayBox.appendChild(itemsList);
+            container.appendChild(dayBox);
+        }
     }
 
-    // 網頁載入時，先執行一次更新畫面
+    function exportCSV() {
+        if(foodRecords.length === 0) {
+            alert("目前沒有紀錄可匯出！");
+            return;
+        }
+
+        let csvContent = "\uFEFF建立時間,食物名稱,卡路里(kcal),蛋白質(g),碳水化合物(g),脂肪(g)\n";
+
+        foodRecords.forEach(record => {
+            let dateObj = new Date(record.id);
+            let dateString = dateObj.toLocaleString('zh-HK');
+            csvContent += `${dateString},${record.name},${record.cal},${record.pro},${record.carb},${record.fat}\n`;
+        });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", "我的飲食紀錄.csv");
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
     updateUI();
+</script>
 </script>
 
 </body>
