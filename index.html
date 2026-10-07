@@ -2,127 +2,44 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <!-- 讓網頁在手機上完美顯示的設定 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>我的飲食紀錄</title>
-<!-- 連結 Manifest -->
-<link rel="manifest" href="manifest.json">
-<!-- iOS 專用圖示 -->
-<link rel="apple-touch-icon" href="icon.png">
-<meta name="theme-color" content="#2c3e50">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="theme-color" content="#2c3e50">
 
-<!-- 註冊 Service Worker -->
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js')
-      .then(() => console.log('Service Worker 註冊成功'))
-      .catch(err => console.log('Service Worker 註冊失敗', err));
-  }
-</script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+          .then(() => console.log('Service Worker 註冊成功'))
+          .catch(err => console.log('Service Worker 註冊失敗', err));
+      }
+    </script>
     <style>
-        /* CSS: 這裡是 App 的外觀設計 */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f6f8;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-        }
-        /* 模擬手機螢幕的寬度 */
-        .app-container {
-            width: 100%;
-            max-width: 480px;
-            background-color: #ffffff;
-            min-height: 100vh;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-        }
-        header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f8; margin: 0; padding: 0; display: flex; justify-content: center; }
+        .app-container { width: 100%; max-width: 480px; background-color: #ffffff; min-height: 100vh; box-shadow: 0 0 10px rgba(0,0,0,0.05); }
+        header { background-color: #2c3e50; color: white; padding: 20px; text-align: center; }
         h1 { margin: 0; font-size: 20px; }
-        
-        /* 數據總結區塊 */
-        .summary-card {
-            background-color: #e8f4f8;
-            margin: 15px;
-            padding: 15px;
-            border-radius: 10px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            text-align: center;
-        }
-        .summary-item {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .summary-item strong {
-            display: block;
-            font-size: 20px;
-            color: #2980b9;
-        }
-        .summary-item span {
-            font-size: 12px;
-            color: #7f8c8d;
-        }
-
-        /* 輸入表單區塊 */
-        .input-section {
-            padding: 15px;
-            border-top: 1px solid #eee;
-        }
-        select, input, button {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        button {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .summary-card { background-color: #e8f4f8; margin: 15px; padding: 15px; border-radius: 10px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; text-align: center; }
+        .summary-item { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .summary-item strong { display: block; font-size: 20px; color: #2980b9; }
+        .summary-item span { font-size: 12px; color: #7f8c8d; }
+        .input-section { padding: 15px; border-top: 1px solid #eee; }
+        select, input, button { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #27ae60; color: white; border: none; font-weight: bold; cursor: pointer; }
         button:active { background-color: #2ecc71; }
-
-        /* 紀錄列表區塊 */
-        .record-list {
-            padding: 0 15px 15px 15px;
-        }
-        .record-item {
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 4px solid #3498db;
-        }
-        .record-details p {
-            margin: 0;
-            font-size: 14px;
-        }
-        .record-details small {
-            color: #7f8c8d;
-        }
-        .delete-btn {
-            background: #e74c3c;
-            width: auto;
-            padding: 6px 12px;
-            margin: 0;
-            font-size: 12px;
-        }
+        .record-list { padding: 0 15px 15px 15px; }
+        .record-item { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #3498db; }
+        .record-details p { margin: 0; font-size: 14px; }
+        .record-details small { color: #7f8c8d; }
+        .delete-btn { background: #e74c3c; width: auto; padding: 6px 12px; margin: 0; font-size: 12px; }
+        
+        /* 新增的按鈕排版 */
+        .tools-row { display: flex; gap: 10px; margin-top: 5px; }
+        .btn-csv { background-color: #3498db; }
+        .btn-csv:active { background-color: #2980b9; }
+        .btn-reset { background-color: #95a5a6; }
+        .btn-reset:active { background-color: #7f8c8d; }
     </style>
 </head>
 <body>
@@ -132,7 +49,6 @@
         <h1>我的飲食紀錄</h1>
     </header>
 
-    <!-- 總結區塊 -->
     <div class="summary-card">
         <div class="summary-item"><strong id="totalCal">0</strong><span>卡路里 (kcal)</span></div>
         <div class="summary-item"><strong id="totalPro">0</strong><span>蛋白質 (g)</span></div>
@@ -140,11 +56,8 @@
         <div class="summary-item"><strong id="totalFat">0</strong><span>脂肪 (g)</span></div>
     </div>
 
-    <!-- 新增食物區塊 -->
     <div class="input-section">
         <h3 style="margin-top: 0;">新增餐點</h3>
-        
-        <!-- 快捷預設選單 -->
         <select id="presetFood" onchange="fillPreset()">
             <option value="">-- 選擇快捷食物 (或手動輸入) --</option>
             <option value="yunchuan" data-cal="1090" data-pro="47" data-carb="94" data-fat="61">雲川熱拌米線(豬頸肉+豬軟骨)+凍檸茶少甜</option>
@@ -161,9 +74,14 @@
         <input type="number" id="foodCarb" placeholder="碳水 (g)">
         <input type="number" id="foodFat" placeholder="脂肪 (g)">
         <button onclick="addFood()">加入紀錄</button>
+
+        <!-- 補回匯出 CSV 與重置 API Key 功能 -->
+        <div class="tools-row">
+            <button onclick="exportCSV()" class="btn-csv">📥 匯出 CSV</button>
+            <button onclick="resetAPIKey()" class="btn-reset">🔄 重置 API</button>
+        </div>
     </div>
 
-    <!-- 歷史紀錄列表 -->
     <div class="record-list">
         <h3>歷史紀錄 (近一星期趨勢)</h3>
         <div id="recordsContainer"></div>
@@ -191,7 +109,7 @@
             document.getElementById('foodFat').value = '';
         }
     }
-// AI 估算功能 (支援自動切換備用模型)
+
     async function askGemini() {
         const foodName = document.getElementById('foodName').value;
         if (!foodName) {
@@ -213,10 +131,15 @@
 
         const promptText = `請估算「${foodName}」的一人份量營養數值。請嚴格回傳JSON格式，不需要任何其他文字或Markdown符號(不要有\`\`\`json)。格式要求如下：{"cal": 數字, "pro": 數字, "carb": 數字, "fat": 數字}`;
 
-        // 設定優先與備用模型順序 (優先 3.8，若繁忙自動降級嘗試 2.5 或 1.5)
-        const models = ['gemini-3.8-flash', 'gemini-2.5-flash', 'gemini-1.5-flash'];
-        let success = false;
-        let lastError = null;
+        // 修正：使用 AI Studio 目前最新且穩定支援的模型名稱
+const models = [
+    'gemini-3.8-flash', // 最新發布（2026年9月），適合多步推理及複雜任務
+    'gemini-3.7-flash', // 作為備用，運算效率高
+    'gemini-3.5-flash'  // 較早期的穩定版本作為最後備用
+];
+
+let success = false;
+let lastError = null;
 
         for (const model of models) {
             try {
@@ -244,20 +167,22 @@
                 document.getElementById('foodFat').value = nutrition.fat;
 
                 success = true;
-                break; // 成功取得數據即跳出迴圈
+                break; 
             } catch (error) {
-                console.warn(`[${model}] 繁忙或失敗，嘗試下一個備用模型...`, error);
+                console.warn(`[${model}] 失敗，嘗試下一個備用模型...`, error);
                 lastError = error;
             }
         }
 
         if (!success) {
-            alert("伺服器繁忙中，請稍後再試。詳細錯誤：" + (lastError ? lastError.message : "未知錯誤"));
+            // 加入溫馨提示，提醒可能係 VPN 或 API Key 問題
+            alert("連線失敗！請檢查：\n1. 是否已開啟 VPN (香港 IP 會被封鎖)\n2. API Key 是否正確\n\n系統錯誤訊息：" + (lastError ? lastError.message : "未知錯誤"));
         }
 
         btn.innerText = originalText;
         btn.disabled = false;
     }
+
     function addFood() {
         const name = document.getElementById('foodName').value;
         const cal = Number(document.getElementById('foodCal').value);
@@ -294,7 +219,6 @@
         const container = document.getElementById('recordsContainer');
         container.innerHTML = '';
 
-        // 計算今日總和 (用於頂部卡片)
         let todayStr = new Date().toLocaleDateString();
         let tCal = 0, tPro = 0, tCarb = 0, tFat = 0;
 
@@ -318,7 +242,6 @@
             return;
         }
 
-        // 將紀錄按日期分組 (由新到舊排序)
         let grouped = {};
         foodRecords.slice().reverse().forEach(record => {
             let dateKey = new Date(record.id).toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric', weekday: 'short' });
@@ -328,7 +251,6 @@
             grouped[dateKey].push(record);
         });
 
-        // 渲染每一日的清單
         for (let date in grouped) {
             let dayRecords = grouped[date];
             let dayCal = dayRecords.reduce((sum, r) => sum + r.cal, 0);
@@ -390,8 +312,15 @@
         document.body.removeChild(link);
     }
 
+    // 新增：重置 API Key 的功能
+    function resetAPIKey() {
+        if(confirm("確定要清除已儲存的 API Key 嗎？下次使用需要重新輸入。")) {
+            localStorage.removeItem('geminiApiKey');
+            alert("API Key 已清除！");
+        }
+    }
+
     updateUI();
-</script>
 </script>
 
 </body>
