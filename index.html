@@ -66,7 +66,7 @@
         </select>
 
         <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-            <input type="text" id="foodName" placeholder="食物名稱 (例如: 韓式綠豆煎餅)" style="margin-bottom: 0;">
+            <input type="text" id="foodName" placeholder="食物名稱及份量 (例如: 綠豆煎餅 2塊 或 豬頸肉 200g)" style="margin-bottom: 0;">
             <button onclick="askGemini()" id="aiBtn" style="background-color: #8e44ad; width: 120px; margin-bottom: 0;">✨ AI 估算</button>
         </div>
         <input type="number" id="foodCal" placeholder="卡路里 (kcal)">
@@ -129,14 +129,14 @@
         btn.innerText = "⏳ 思考中...";
         btn.disabled = true;
 
-        const promptText = `請估算「${foodName}」的一人份量營養數值。請嚴格回傳JSON格式，不需要任何其他文字或Markdown符號(不要有\`\`\`json)。格式要求如下：{"cal": 數字, "pro": 數字, "carb": 數字, "fat": 數字}`;
+        const promptText = `請作為專業的營養學助手，計算「${foodName}」的總營養數值。請注意：
+1. 如果輸入包含份量（例如：3片、300g、半碗、x2），請嚴格計算該「總份量」的加總數值。
+2. 如果沒有提供份量，請預設為 1 個常規一人份量。
+3. 請嚴格回傳純 JSON 格式，不需要任何其他文字或 Markdown 符號（不要有 \`\`\`json）。
+格式要求必須完全匹配以下 Key：{"cal": 數字, "pro": 數字, "carb": 數字, "fat": 數字}`;
 
         // 修正：使用 AI Studio 目前最新且穩定支援的模型名稱
-const models = [
-    'gemini-3.8-flash', // 最新發布（2026年9月），適合多步推理及複雜任務
-    'gemini-3.7-flash', // 作為備用，運算效率高
-    'gemini-3.5-flash'  // 較早期的穩定版本作為最後備用
-];
+const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
 
 let success = false;
 let lastError = null;
